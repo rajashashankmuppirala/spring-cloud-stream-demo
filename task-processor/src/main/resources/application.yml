@@ -1,0 +1,45 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  application:
+    name: task-processor
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: test-user
+    password: shashank
+  cloud:
+    stream:
+      bindings:
+        processTasks-in-0:
+          destination: process-task
+          group: process-task-consumer
+          content-type: application/json
+        processTasks-out-0:
+          destination: completed-task
+          content-type: application/json
+      rabbit:
+        bindings:
+          processTasks-in-0:
+            consumer:
+              bindingRoutingKey: "process.task"
+          processTasks-out-0:
+            producer:
+              routingKeyExpression: '''completed.task'''
+
+server:
+  port: 8081
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          stream: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "bindings"
+

@@ -1,0 +1,38 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  application:
+    name: task-consumer
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: test-user
+    password: shashank
+  cloud:
+    stream:
+      bindings:
+        onComplete-in-0:
+          destination: completed-task
+          group: completed-task-consumer
+          contentType: application/json
+      rabbit:
+        bindings:
+          onComplete-in-0:
+            consumer:
+              bindingRoutingKey: "completed.task"
+
+server:
+  port: 8082
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          stream: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "bindings"

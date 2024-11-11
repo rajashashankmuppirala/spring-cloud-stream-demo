@@ -1,0 +1,49 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  application:
+    name: task-producer
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: test-user
+    password: shashank
+  cloud:
+    stream:
+      bindings:
+        createTaskEvent-out-0:
+          destination: create-task
+          content-type: application/json
+        processCreatedTasks-in-0:
+          destination: create-task
+          group: create-task-consumer
+          content-type: application/json
+        processCreatedTasks-out-0:
+          destination: process-task
+          content-type: application/json
+      rabbit:
+        bindings:
+          createTaskEvent-out-0:
+            producer:
+              routingKeyExpression: '''create.task'''
+          processCreatedTasks-in-0:
+            consumer:
+              bindingRoutingKey: "create.task"
+          processCreatedTasks-out-0:
+            producer:
+              routingKeyExpression: '''process.task'''
+
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          stream: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "bindings"
+
