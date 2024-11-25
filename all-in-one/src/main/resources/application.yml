@@ -1,0 +1,67 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    stream:
+      bindings:
+        createTaskEvent-out-0:
+          destination: create-task
+          content-type: application/json
+        processCreatedTasks-in-0:
+          destination: create-task
+          group: create-task-consumer
+          content-type: application/json
+        processCreatedTasks-out-0:
+          destination: process-task
+          content-type: application/json
+        processTasks-in-0:
+          destination: process-task
+          group: process-task-consumer
+          content-type: application/json
+        processTasks-out-0:
+          destination: completed-task
+          content-type: application/json
+        onComplete-in-0:
+          destination: completed-task
+          group: completed-task-consumer
+          contentType: application/json
+      rabbit:
+        bindings:
+          createTaskEvent-out-0:
+            producer:
+              routingKeyExpression: '''create.task'''
+          processCreatedTasks-in-0:
+            consumer:
+              bindingRoutingKey: "create.task"
+          processCreatedTasks-out-0:
+            producer:
+              routingKeyExpression: '''process.task'''
+          processTasks-in-0:
+            consumer:
+              bindingRoutingKey: "process.task"
+          processTasks-out-0:
+            producer:
+              routingKeyExpression: '''completed.task'''
+          onComplete-in-0:
+            consumer:
+              bindingRoutingKey: "completed.task"
+    function:
+      definition: processCreatedTasks;processTasks;onComplete
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          stream: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "bindings"
