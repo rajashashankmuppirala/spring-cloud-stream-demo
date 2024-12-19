@@ -35,10 +35,14 @@ spring:
         bindings:
           createTaskEvent-out-0:
             producer:
+              exchange-type: x-delayed-message
               routingKeyExpression: '''create.task'''
+              arguments:
+                x-delayed-type: topic
           processCreatedTasks-in-0:
             consumer:
               bindingRoutingKey: "create.task"
+              delayedExchange: true
           processCreatedTasks-out-0:
             producer:
               routingKeyExpression: '''process.task'''
